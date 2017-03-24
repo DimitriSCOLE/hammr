@@ -16,7 +16,16 @@ This builder type is the default name provided by UForge AppCenter.
 
 .. note:: This builder type name can be changed by your UForge administrator. To get the available builder types, please refer to :ref:`command-line-format`
 
-The GCE builder section has the following definition:
+The GCE builder section has the following definition when using YAML:
+
+.. code-block:: yaml
+
+	---
+	builders:
+	- type: Google Compute Engine
+		# the rest of the definition goes here.
+
+If you are using JSON:
 
 .. code-block:: javascript
 
@@ -37,6 +46,8 @@ For building an image, the valid keys are:
 * ``type`` (mandatory): a string providing the machine image type to build. Default builder type for Google compute Engine: ``Google Compute Engine``. To get the available builder type, please refer to :ref:`command-line-format`
 * ``installation`` (optional): an object providing low-level installation or first boot options. These override any installation options in the :ref:`template-stack` section. The following valid keys for installation are:
 	* ``diskSize`` (mandatory): an integer providing the disk size of the machine image to create.
+
+.. note:: When building from a scan, your yaml or json file must contain an ``installation`` section in ``builders``. This is mandatory when you create a new template, but might be missing when you build from a scan. Make sure it is present or your build will fail.
 
 Publishing a Machine Image
 --------------------------
@@ -102,6 +113,29 @@ Example
 
 The following example shows a GCE builder with all the information to build and publish a machine image to Google Compute Engine.
 
+If you are using YAML:
+
+.. code-block:: yaml
+
+	---
+	builders:
+	- type: Google Compute Engine
+	  account:
+	    type: Google Compute Engine
+	    name: My GCE Account
+	    username: joris
+	    certPassword: myCertPassword
+	    cert: "/home/joris/certs/gce.pem"
+	  computeZone: europe-west1-a
+	  bucketLocation: EU
+	  bucket: jorisbucketname
+	  projectId: jorisproject
+	  storageClass: STANDARD
+	  diskNamePrefix: uss-
+	  description: CentOS Core machine image
+
+If you are using JSON:
+
 .. code-block:: json
 
 	{
@@ -129,7 +163,19 @@ The following example shows a GCE builder with all the information to build and 
 Referencing the Cloud Account
 -----------------------------
 
-To help with security, the cloud account information can be referenced by the builder section. This example is the same as the previous example but with the account information in another file. Create a json file ``gce-account.json``.
+To help with security, the cloud account information can be referenced by the builder section. This example is the same as the previous example but with the account information in another file. Create a YAML file ``gce-account.yml``.
+
+.. code-block:: yaml
+
+	---
+	accounts:
+	- type: Google Compute Engine
+	  name: My GCE Account
+	  username: joris
+	  certPassword: myCertPassword
+	  cert: "/home/joris/certs/gce.pem"
+
+If you are using JSON, create a JSON file ``gce-account.json``:
 
 .. code-block:: json
 
@@ -148,6 +194,25 @@ To help with security, the cloud account information can be referenced by the bu
 The builder section can either reference by using ``file`` or ``name``.
 
 Reference by file:
+
+If you are using YAML:
+
+.. code-block:: yaml
+
+	---
+	builders:
+	- type: Google Compute Engine
+	  account:
+	    file: "/home/joris/accounts/gce-account.yml"
+	  computeZone: europe-west1-a
+	  bucketLocation: EU
+	  bucket: jorisbucketname
+	  projectId: jorisproject
+	  storageClass: STANDARD
+	  diskNamePrefix: uss-
+	  description: CentOS Core machine image
+
+If you are using JSON:
 
 .. code-block:: json
 
@@ -170,6 +235,25 @@ Reference by file:
 	}
 
 Reference by name, note the cloud account must already be created by using ``account create``.
+
+If you are using YAML:
+
+.. code-block:: yaml
+
+	---
+	builders:
+	- type: Google Compute Engine
+	  account:
+	    name: My GCE Account
+	  computeZone: europe-west1-a
+	  bucketLocation: EU
+	  bucket: jorisbucketname
+	  projectId: jorisproject
+	  storageClass: STANDARD
+	  diskNamePrefix: uss-
+	  description: CentOS Core machine image
+
+If you are using JSON:
 
 .. code-block:: json
 

@@ -21,14 +21,19 @@ Sub Commands
 Builds a machine image from a scan. The options are:
 
 	* ``--id`` (mandatory): the ID of the scan to generate the machine image from
-	* ``--file`` (mandatory): json file providing the builder parameters
+	* ``--file`` (mandatory): json or yaml file providing the builder parameters
+
+.. note:: When building from a scan, your yaml or json file must contain an ``installation`` and ``hardwareSettings`` section in ``builders``. Refer to :ref:`stack-installation` for installation details and :ref:`template-builders` for the hardware settings, which depend on the builder type.
+
 
 ``delete`` sub-command
 ~~~~~~~~~~~~~~~~~~~~~~
 
 Deletes an existing scan. The options are:
 
-	* ``--id`` (mandatory): the ID of the scan to delete
+	* ``--id`` (mandatory): the ID of the instance or scan to delete
+	* ``--scantype`` (mandatory): the type to be deleted. Can be one of: instance, scan, or all. When you set the type to ``instance``, the instance and all scans linked to it will be deleted unless using the ``scansonly`` flag. When you specify the type as ``scan`` only the scan with the ID to specify will be deleted. If you set the type to ``all``, all the instances and scans on your UForge will be deleted (regardeless of the ``id`` you set).
+	* ``--scansonly`` (optional): this flag can be used when the scan type is set to ``instance``. In this case, only the scans linked to the specified instance will be deleted (not the instance itself).
 
 ``import`` sub-command
 ~~~~~~~~~~~~~~~~~~~~~~

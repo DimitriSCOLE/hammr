@@ -19,7 +19,16 @@ These builder types are the default names provided by UForge AppCenter.
 
 The CloudStack builder requires cloud account information to upload and register the machine image to the CloudStack platform.
 
-The CloudStack builder section has the following definition:
+The CloudStack builder section has the following definition when using YAML:
+
+.. code-block:: yaml
+
+  ---
+  builders:
+  - type: CloudStack KVM (QCOW2)
+    # the rest of the definition goes here.
+
+If you are using JSON:
 
 .. code-block:: javascript
 
@@ -41,7 +50,9 @@ For building an image, the valid keys are:
 * ``hardwareSettings`` (mandatory): an object providing hardware settings to be used for the machine image. If an OVF machine image is being built, then the hardware settings are mandatory. The following valid keys for hardware settings are:
 * ``memory`` (mandatory): an integer providing the amount of RAM to provide to an instance provisioned from the machine image (in MB).
 * ``installation`` (optional): an object providing low-level installation or first boot options. These override any installation options in the :ref:`template-stack` section. The following valid keys for installation are:
-* ``diskSize`` (mandatory): an integer providing the disk size of the machine image to create. Note, this overrides any disk size information in the stack. This cannot be used if an advanced partitioning table is defined in the stack.
+  * ``diskSize`` (mandatory): an integer providing the disk size of the machine image to create. Note, this overrides any disk size information in the stack. This cannot be used if an advanced partitioning table is defined in the stack.
+
+.. note:: When building from a scan, your yaml or json file must contain an ``installation`` section in ``builders``. This is mandatory when you create a new template, but might be missing when you build from a scan. Make sure it is present or your build will fail.
 
 Publishing a Machine Image
 --------------------------
@@ -77,6 +88,24 @@ Example
 
 The following example shows a CloudStack builder with all the information to build and publish a machine image to CloudStack.
 
+If you are using YAML:
+
+.. code-block:: yaml
+
+  ---
+  builders:
+  - type: CloudStack KVM (QCOW2)
+    account:
+      type: CloudStack
+      name: My CloudStack account
+      publicApiKey: mypublicapikey
+      secretApiKey: mysecretapiKey
+      endpointUrl: myendpointurl
+    imageName: CentOS Core
+    zone: zone1
+
+If you are using JSON:
+
 .. code-block:: json
 
   {
@@ -99,7 +128,19 @@ The following example shows a CloudStack builder with all the information to bui
 Referencing the Cloud Account
 -----------------------------
 
-To help with security, the cloud account information can be referenced by the builder section. This example is the same as the previous example but with the account information in another file. Create a json file ``cloudstack-account.json``.
+To help with security, the cloud account information can be referenced by the builder section. This example is the same as the previous example but with the account information in another file. Create a YAML file ``cloudstack-account.yml``.
+
+.. code-block:: yaml
+
+  ---
+  accounts:
+  - type: CloudStack
+    name: My CloudStack account
+    publicApiKey: mypublicapikey
+    secretApiKey: mysecretapiKey
+    endpointUrl: myendpointurl
+
+If you are using JSON, create a JSON file ``cloudstack-account.json``:
 
 .. code-block:: json
 
@@ -119,6 +160,20 @@ The builder section can either reference by using ``file`` or ``name``.
 
 Reference by file:
 
+If you are using YAML:
+
+.. code-block:: yaml
+
+  ---
+  builders:
+  - type: CloudStack KVM (QCOW2)
+    account:
+      file: "/path/to/cloudstack-account.yml"
+    imageName: CentOS Core
+    zone: zone1
+
+If you are using JSON:
+
 .. code-block:: json
 
   {
@@ -136,7 +191,21 @@ Reference by file:
 
 Reference by name, note the cloud account must already be created by using ``account create``.
 
-.. code-block:: javascript
+If you are using YAML:
+
+.. code-block:: yaml
+
+  ---
+  builders:
+  - type: CloudStack KVM (QCOW2)
+    account:
+      name: My CloudStack Account
+    imageName: CentOS Core
+    zone: zone1
+
+If you are using JSON:
+
+.. code-block:: json
 
   {
     "builders": [

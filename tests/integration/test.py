@@ -61,6 +61,16 @@ def get_image_id(image, name):
         os.remove("stdout_file")
         return id
 
+def get_bundle_id(bundle, name):
+        stdout = sys.stdout
+        sys.stdout = open('stdout_file', 'w')
+        bundle.do_list(None)
+        sys.stdout = stdout
+        cmd = os.popen("cat stdout_file | grep "+name+" | grep -v Getting | cut -d '|' -f2")
+        id = cmd.read().rstrip()
+        os.remove("stdout_file")
+        return id
+
 class TestCLI(unittest.TestCase):
 
         global api
@@ -106,6 +116,12 @@ class TestTemplate(unittest.TestCase):
                 r = template.do_create("--file data/template.json")
                 self.assertNotEqual(r, None)
 
+        def test_04_create_bundle_with_directory(self):
+                template = hammr.commands.template.Template()
+                template.set_globals(api, login, password)
+                r = template.do_create("--file data/templateForBundleDirectoryTest.json")
+                self.assertEqual(r, 0)
+
         def test_05_build(self):
                 template = hammr.commands.template.Template()
                 template.set_globals(api, login, password)
@@ -140,6 +156,7 @@ class TestTemplate(unittest.TestCase):
                 template.set_globals(api, login, password)
                 id = get_template_id(template, "templateFull")
                 r = template.do_export("--id "+id)
+                os.remove("archive.tar.gz")
                 self.assertEqual(r, 0)
 
 
@@ -271,6 +288,44 @@ class TestBundle(unittest.TestCase):
                 r = bundle.do_list(None)
                 self.assertEqual(r, 0)
 
+        def test_02_validate(self):
+                bundle = hammr.commands.bundle.Bundle()
+                bundle.set_globals(api, login, password)
+                r = bundle.do_validate("--file data/bundleFull.json")
+                self.assertEqual(r, 0)
+
+        def test_03_delete(self):
+                bundle = hammr.commands.bundle.Bundle()
+                bundle.set_globals(api, login, password)
+                id = get_bundle_id(bundle, "Bundle")
+                if id is not None and id !="":
+                        r = bundle.do_delete("--id "+id)
+                        self.assertEqual(r, 0)
+                else:
+                        raise unittest.SkipTest("No bundle to delete")
+
+        def test_04_create(self):
+                bundle = hammr.commands.bundle.Bundle()
+                bundle.set_globals(api, login, password)
+                r = bundle.do_create("--file data/bundleFull.json")
+                self.assertNotEqual(r, None)
+
+        def test_05_export(self):
+                bundle = hammr.commands.bundle.Bundle()
+                bundle.set_globals(api, login, password)
+                id = get_bundle_id(bundle, "Bundle")
+                r = bundle.do_export("--id "+id)
+                self.assertEqual(r, 0)
+
+        def test_06_import(self):
+                bundle = hammr.commands.bundle.Bundle()
+                bundle.set_globals(api, login, password)
+                id = get_bundle_id(bundle, "Bundle")
+                bundle.do_delete("--id "+id)
+                r = bundle.do_import("--file Bundle.tar.gz")
+                os.remove("Bundle.tar.gz")
+                self.assertEqual(r, 0)
+
 
 class TestImage(unittest.TestCase):
 
@@ -282,8 +337,17 @@ class TestImage(unittest.TestCase):
                 image.set_globals(api, login, password)
                 r = image.do_list(None)
                 self.assertEqual(r, 0)
-        
 
+
+class TestFilesYam(unittest.TestCase):
+        global api
+        api = Api(url, username = login, password = password, headers = None, disable_ssl_certificate_validation = True)
+
+        def test_template_create_with_yaml(self):
+                template = hammr.commands.template.Template()
+                template.set_globals(api, login, password)
+                r = template.do_create("--file data/test-parsing.yml --force")
+                self.assertEqual(r, 0)
 
 
 if __name__ == '__main__':

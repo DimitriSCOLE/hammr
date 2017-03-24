@@ -11,14 +11,24 @@ Require Cloud Account: Yes
 
 `flexiant.com <http://flexiant.com>`_
 
-The Flexiant builder provides information for building and publishing the machine image to a Flexiant cloud platform. This builder supports KVM (``Flexiant QCOW2 - KVM/Xen/VMware``), VMware (``Flexiant OVA - VMware``) or Raw (``Flexiant RAW - KVM/Xen`) based images for Flexiant.
+The Flexiant builder provides information for building and publishing the machine image to a Flexiant cloud platform. This builder supports KVM (``Flexiant QCOW2 - KVM/Xen/VMware``), VMware (``Flexiant OVA - VMware``) or Raw (``Flexiant RAW - KVM/Xen``) based images for Flexiant.
+
 These builder types are the default names provided by UForge AppCenter.
 
 .. note:: These builder type names can be changed by your UForge administrator. To get the available builder types, please refer to :ref:`command-line-format`
 
 The Flexiant builder requires cloud account information to upload and register the machine image to the Flexiant platform.
 
-The Flexiant builder section has the following definition:
+The Flexiant builder section has the following definition when using YAML:
+
+.. code-block:: yaml
+
+  ---
+  builders:
+  - type: Flexiant RAW - KVM/Xen
+    # the rest of the definition goes here.
+
+If you are using JSON:
 
 .. code-block:: javascript
 
@@ -41,6 +51,8 @@ For building an image, the valid keys are:
 	* ``memory`` (mandatory): an integer providing the amount of RAM to provide to an instance provisioned from the machine image (in MB).
 * installation (optional): an object providing low-level installation or first boot options. These override any installation options in the :ref:`template-stack` section. The following valid keys for installation are:
 	* ``diskSize`` (mandatory): an integer providing the disk size of the machine image to create. Note, this overrides any disk size information in the stack. This cannot be used if an advanced partitioning table is defined in the stack.
+
+.. note:: When building from a scan, your yaml or json file must contain an ``installation`` section in ``builders``. This is mandatory when you create a new template, but might be missing when you build from a scan. Make sure it is present or your build will fail.
 
 Publishing a Machine Image
 --------------------------
@@ -75,54 +87,109 @@ Example
 
 The following example shows a Flexiant builder with all the information to build and publish a machine image to the Flexiant.
 
-.. code-block:: json
+If you are using YAML:
 
-    {
-      "builders": [
-        {
-          "type": "Flexiant RAW - KVM/Xen",
-          "account": {
-            "type": "Flexiant",
-            "name": "My Flexiant account",
-            "apiUsername": "name@domain.com/mykey1111",
-            "password": "mypassword",
-            "wsdlUrl": "myWsdlurl"
-          },
-          "hardwareSettings": {
-            "memory": 1024
-          },
-          "installation": {
-            "diskSize": 2000
-          },
-          "virtualDatacenterName": "KVM (CEPH Cluster)",
-          "machineImageName": "test_hammr",
-          "diskOffering": "21 GB"
-        }
-      ]
-    }
+.. code-block:: yaml
 
-Referencing the Cloud Account
------------------------------
+  ---
+  builders:
+  - type: Flexiant RAW - KVM/Xen
+    account:
+      type: Flexiant
+      name: My Flexiant account
+      apiUsername: name@domain.com/mykey1111
+      password: mypassword
+      wsdlUrl: myWsdlurl
+    hardwareSettings:
+      memory: 1024
+    installation:
+      diskSize: 2000
+    virtualDatacenterName: KVM (CEPH Cluster)
+    machineImageName: test_hammr
+    diskOffering: 21 GB
 
-To help with security, the cloud account information can be referenced by the builder section. This example is the same as the previous example but with the account information in another file. Create a json file ``Flexiant-account.json``.
+If you are using JSON:
 
 .. code-block:: json
 
-    {
-      "accounts": [
-        {
+  {
+    "builders": [
+      {
+        "type": "Flexiant RAW - KVM/Xen",
+        "account": {
           "type": "Flexiant",
           "name": "My Flexiant account",
           "apiUsername": "name@domain.com/mykey1111",
           "password": "mypassword",
           "wsdlUrl": "myWsdlurl"
-        }
-      ]
-    }
+        },
+        "hardwareSettings": {
+          "memory": 1024
+        },
+        "installation": {
+          "diskSize": 2000
+        },
+        "virtualDatacenterName": "KVM (CEPH Cluster)",
+        "machineImageName": "test_hammr",
+        "diskOffering": "21 GB"
+      }
+    ]
+  }
+
+Referencing the Cloud Account
+-----------------------------
+
+To help with security, the cloud account information can be referenced by the builder section. This example is the same as the previous example but with the account information in another file. Create a YAML file ``Flexiant-account.yml``.
+
+.. code-block:: yaml
+
+  ---
+  accounts:
+  - type: Flexiant
+    name: My Flexiant account
+    apiUsername: name@domain.com/mykey1111
+    password: mypassword
+    wsdlUrl: myWsdlurl
+
+
+If you are using JSON, create a JSON file ``Flexiant-account.json``:
+
+.. code-block:: json
+
+  {
+    "accounts": [
+      {
+        "type": "Flexiant",
+        "name": "My Flexiant account",
+        "apiUsername": "name@domain.com/mykey1111",
+        "password": "mypassword",
+        "wsdlUrl": "myWsdlurl"
+      }
+    ]
+  }
 
 The builder section can either reference by using ``file`` or ``name``.
 
 Reference by file:
+
+If you are using YAML:
+
+.. code-block:: yaml
+
+  ---
+  builders:
+  - type: Flexiant RAW - KVM/Xen
+    account:
+      file: "/path/to/flexiant-account.yml"
+    hardwareSettings:
+      memory: 1024
+    installation:
+      diskSize: 2000
+    virtualDatacenterName: KVM (CEPH Cluster)
+    machineImageName: test_hammr
+    diskOffering: 21 GB
+
+If you are using JSON:
 
 .. code-block:: json
 
@@ -147,6 +214,25 @@ Reference by file:
     }
 
 Reference by name, note the cloud account must already be created by using ``account create``.
+
+If you are using YAML:
+
+.. code-block:: yaml
+
+  ---
+  builders:
+  - type: Flexiant RAW - KVM/Xen
+    account:
+      name: My Flexiant Account
+    hardwareSettings:
+      memory: 1024
+    installation:
+      diskSize: 2000
+    virtualDatacenterName: KVM (CEPH Cluster)
+    machineImageName: test_hammr
+    diskOffering: 21 GB
+
+If you are using JSON:
 
 .. code-block:: json
 

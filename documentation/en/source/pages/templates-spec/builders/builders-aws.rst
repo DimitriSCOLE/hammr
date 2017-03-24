@@ -16,7 +16,16 @@ This builder type is the default name provided by UForge AppCenter.
 
 .. note:: This builder type name can be changed by your UForge administrator. To get the available builder types, please refer to :ref:`command-line-format`
 
-The Amazon builder section has the following definition:
+The Amazon builder section has the following definition when using YAML:
+
+.. code-block:: yaml
+
+  ---
+  builders:
+  - type: Amazon AWS
+    # the rest of the definition goes here.
+
+If you are using JSON:
 
 .. code-block:: javascript
 
@@ -35,11 +44,11 @@ Building a Machine Image
 For building an image, the valid keys are:
 
 * ``type`` (mandatory): a string providing the machine image type to build. Default builder type for Amazon: ``Amazon AWS``. To get the available builder type, please refer to :ref:`command-line-format`
-* ``account`` (mandatory): an object providing the AWS cloud account information required to publish the built machine image.
 * ``disableRootLogin`` (optional): a boolean flag to determine if root login access should be disabled for any instance provisioned from the machine image.
 * ``installation`` (optional): an object providing low-level installation or first boot options. These override any installation options in the :ref:`template-stack` section. The following valid keys for installation are:
-	* ``diskSize`` (mandatory): an integer providing the disk size of the machine image to create. Note, this overrides any disk size information in the stack. If the machine image is to be stored in Amazon S3, the maximum disk size is 10GB, otherwise if this is an EBS-backed machine image the maximum disk size is 1TB.
-* ``ebs`` (optional): a boolean flag to determine if the machine image should be EBS-backed.
+	* ``diskSize`` (mandatory): an integer providing the disk size of the machine image to create. Note, this overrides any disk size information in the stack. As EBS-backed machine image is created, the maximum disk size is 1TB.
+
+.. note:: When building from a scan, your yaml or json file must contain an ``installation`` section in ``builders``. This is mandatory when you create a new template, but might be missing when you build from a scan. Make sure it is present or your build will fail.
 
 Publishing a Machine Image
 --------------------------
@@ -82,12 +91,34 @@ The Amazon cloud account has the following valid keys:
 * ``x509PrivateKey`` (mandatory): A string providing the pathname or URL where to retrieve the X.509 certificate private key. This private key is provided during the X.509 creation process. AWS does not store this private key, so you must download it and store it during this creation process. To create a X.509 certificate, sign into AWS (aws.amazon.com), click on Security Credentials > Access Credentials > X.509 Certificates and create a new certificate. Download and save the Private Key. This should be a (.pem) file
 * ``file`` (optional): a string providing the location of the account information. This can be a pathname (relative or absolute) or an URL.
 
-Note: In the case where ``name`` or ``file`` is used to reference a cloud account, all the other keys are no longer required in the account definition for the builder.
+.. note:: In the case where ``name`` or ``file`` is used to reference a cloud account, all the other keys are no longer required in the account definition for the builder.
 
 Example
 -------
 
 The following example shows an amazon builder with all the information to build and publish a machine image to Amazon EC2.
+
+If you are using YAML:
+
+.. code-block:: yaml
+
+  ---
+  builders:
+  - type: Amazon AWS
+    account:
+      type: Amazon
+      name: My AWS account
+      accountNumber: 11111-111111-1111
+      accessKeyId: myaccessKeyid
+      secretAccessKeyId: mysecretaccesskeyid
+      x509Cert: "/path/to/aws.cert.pem"
+      x509PrivateKey: "/path/to/aws.key.pem"
+    installation:
+      diskSize: 10240
+    region: eu-central-1
+    bucket: testsohammr
+
+If you are using JSON:
 
 .. code-block:: json
 
@@ -114,8 +145,23 @@ The following example shows an amazon builder with all the information to build 
   }
 
 Referencing the Cloud Account
+-----------------------------
 
-To help with security, the cloud account information can be referenced by the builder section. This example is the same as the previous example but with the account information in another file. Create a json file ``aws-account.json``.
+To help with security, the cloud account information can be referenced by the builder section. This example is the same as the previous example but with the account information in another file. Create a YAML file ``aws-account.yml``.
+
+.. code-block:: yaml
+
+  ---
+  accounts:
+  - type: Amazon
+    accountNumber: 11111-111111-1111
+    name: My AWS account
+    accessKeyId: myaccessKeyid
+    secretAccessKeyId: mysecretaccesskeyid
+    x509Cert: "/path/to/aws.cert.pem"
+    x509PrivateKey: "/path/to/aws.key.pem"
+
+If you are using JSON, create a JSON file ``aws-account.json``:
 
 .. code-block:: json
 
@@ -137,6 +183,22 @@ The builder section can either reference by using ``file`` or ``name``.
 
 Reference by file:
 
+If you are using YAML:
+
+.. code-block:: yaml
+
+  ---
+  builders:
+  - type: Amazon AWS
+    account:
+      file: "/path/to/aws-account.yml"
+    installation:
+      diskSize: 10240
+    region: eu-central-1
+    bucket: test-so-hammr
+
+If you are using JSON:
+
 .. code-block:: json
 
   {
@@ -156,6 +218,22 @@ Reference by file:
   }
 
 Reference by name, note the cloud account must already be created by using ``account create``.
+
+If you are using YAML:
+
+.. code-block:: yaml
+
+  ---
+  builders:
+  - type: Amazon AWS
+    account:
+      name: My AWS Account
+    installation:
+      diskSize: 10240
+    region: eu-central-1
+    bucket: test-so-hammr
+
+If you are using JSON:
 
 .. code-block:: json
 

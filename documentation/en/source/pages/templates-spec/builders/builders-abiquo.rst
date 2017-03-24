@@ -16,16 +16,26 @@ This builder type is the default name provided by UForge AppCenter.
 
 .. note:: This builder type name can be changed by your UForge administrator. To get the available builder types, please refer to :ref:`command-line-format`
 
-The Abiquo builder section has the following definition:
+The Abiquo builder section has the following definition when using YAML:
+
+.. code-block:: yaml
+
+	---
+	builders:
+	- type: Abiquo
+	  account:
+	    type: Abiquo
+
+If you are using JSON:
 
 .. code-block:: javascript
 
 	{
 	  "builders": [
-	    {
-	      "type": "Abiquo",
-	      ...the rest of the definition goes here.
-	    }
+		{
+		  "type": "Abiquo",
+		  ...the rest of the definition goes here.
+		}
 	  ]
 	}
 
@@ -39,7 +49,9 @@ For building an image, the valid keys are:
 	* ``memory`` (mandatory): an integer providing the amount of RAM to provide to an instance provisioned from the machine image (in MB).
 	* ``hwType`` (optional): an integer providing the hardware type for the machine image. This is the VMware hardware type: 4 (ESXi>3.x), 7 (ESXi>4.x) or 9 (ESXi>5.x)
 * ``installation`` (optional): an object providing low-level installation or first boot options. These override any installation options in the :ref:`template-stack` section. The following valid keys for installation are:
-* ``diskSize`` (mandatory): an integer providing the disk size of the machine image to create. Note, this overrides any disk size information in the stack. This cannot be used if an advanced partitioning table is defined in the stack.
+	* ``diskSize`` (mandatory): an integer providing the disk size of the machine image to create. Note, this overrides any disk size information in the stack. This cannot be used if an advanced partitioning table is defined in the stack.
+
+.. note:: When building from a scan, your yaml or json file must contain an ``installation`` section in ``builders``. This is mandatory when you create a new template, but might be missing when you build from a scan. Make sure it is present or your build will fail.
 
 Publishing a Machine Image
 --------------------------
@@ -80,6 +92,31 @@ Basic Example
 
 The following example shows an abiquo builder with all the information to build and publish a machine image to the Abiquo Cloud platform.
 
+If you are using YAML:
+
+.. code-block:: yaml
+
+	---
+	builders:
+	- type: Abiquo
+	  account:
+	    type: Abiquo
+	    name: My Abiquo Account
+	    hostname: test.abiquo.com
+	    username: myLogin
+	    password: myPassWD
+	  hardwareSettings:
+	    memory: 1024
+	  installation:
+	    diskSize: 2000
+	  enterprise: UShareSoft
+	  datacenter: London
+	  productName: CentOS Core
+	  category: OS
+	  description: CentOS Core template.
+
+If you are using JSON:
+
 .. code-block:: json
 
 	{
@@ -111,7 +148,19 @@ The following example shows an abiquo builder with all the information to build 
 Referencing the Cloud Account
 -----------------------------
 
-To help with security, the cloud account information can be referenced by the builder section. This example is the same as the previous example but with the account information in another file. Create a json file ``abiquo-account.json``.
+To help with security, the cloud account information can be referenced by the builder section. This example is the same as the previous example but with the account information in another file. Create a YAML file ``abiquo-account.yml``.
+
+.. code-block:: yaml
+
+	---
+	account:
+	    type: Abiquo
+	    name: My Abiquo Account
+	    hostname: test.abiquo.com
+	    username: myLogin
+	    password: myPassWD
+
+If you are using JSON, create a JSON file ``abiquo-account.json``:
 
 .. code-block:: json
 
@@ -130,6 +179,27 @@ To help with security, the cloud account information can be referenced by the bu
 The builder section can either reference by using ``file`` or ``name``.
 
 Reference by file:
+
+If you are using YAML:
+
+.. code-block:: yaml
+
+	---
+	builders:
+	- type: Abiquo
+	  account:
+	    file: "/home/joris/accounts/abiquo-account.yml"
+	  hardwareSettings:
+	    memory: 1024
+	  installation:
+	    diskSize: 2000
+	  enterprise: UShareSoft
+	  datacenter: London
+	  productName: CentOS Core
+	  category: OS
+	  description: CentOS Core template.
+
+If you are using JSON:
 
 .. code-block:: json
 
@@ -156,6 +226,27 @@ Reference by file:
 	}
 
 Reference by name, note the cloud account must already be created by using ``account create``.
+
+If you are using YAML:
+
+.. code-block:: yaml
+
+	---
+	builders:
+	- type: Abiquo
+	  account:
+	    name: My Abiquo Account
+	  hardwareSettings:
+	    memory: 1024
+	  installation:
+	    diskSize: 2000
+	  enterprise: UShareSoft
+	  datacenter: London
+	  productName: CentOS Core
+	  category: OS
+	  description: CentOS Core template.
+
+If you are using JSON:
 
 .. code-block:: json
 

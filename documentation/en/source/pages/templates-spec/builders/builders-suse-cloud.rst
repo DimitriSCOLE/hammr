@@ -16,7 +16,16 @@ This builder type is the default name provided by UForge AppCenter.
 
 .. note:: This builder type name can be changed by your UForge administrator. To get the available builder types, please refer to :ref:`command-line-format`
 
-The SuseCloud builder section has the following definition:
+The SuseCloud builder section has the following definition when using YAML:
+
+.. code-block:: yaml
+
+	---
+	builders:
+	- type: Suse Cloud
+		# the rest of the definition goes here.
+
+If you are using JSON:
 
 .. code-block:: javascript
 
@@ -37,6 +46,8 @@ For building an image, the valid keys are:
 * ``type`` (mandatory): a string providing the machine image type to build. Default builder type for Suse Cloud: ``SUSE Cloud``. To get the available builder type, please refer to :ref:`command-line-format`
 * ``installation`` (optional): an object providing low-level installation or first boot options. These override any installation options in the :ref:`template-stack` section. The following valid keys for installation are:
 	* ``diskSize`` (mandatory): an integer providing the disk size of the machine image to create. Note, this overrides any disk size information in the stack. This cannot be used if an advanced partitioning table is defined in the stack.
+
+.. note:: When building from a scan, your yaml or json file must contain an ``installation`` section in ``builders``. This is mandatory when you create a new template, but might be missing when you build from a scan. Make sure it is present or your build will fail.
 
 Publishing a Machine Image
 --------------------------
@@ -85,6 +96,26 @@ Example
 
 The following example shows a SuseCloud builder with all the information to build and publish a machine image to SuseCloud.
 
+If you are using YAML:
+
+.. code-block:: yaml
+
+	---
+	builders:
+	- type: Suse Cloud
+	  account:
+	    type: Suse Cloud
+	    name: My SuseCloud Account
+	    endpoint: http://ow2-04.xsalto.net:9292/v1
+	    keystoneEndpoint: http://ow2-04.xsalto.net:5000/v2.0
+	    username: test
+	    password: password
+	  tenant: opencloudware
+	  imageName: joris-test
+	  description: CentOS Core template.
+
+If you are using JSON:
+
 .. code-block:: json
 
 	{
@@ -109,7 +140,20 @@ The following example shows a SuseCloud builder with all the information to buil
 Referencing the Cloud Account
 -----------------------------
 
-To help with security, the cloud account information can be referenced by the builder section. This example is the same as the previous example but with the account information in another file. Create a json file ``susecloud-account.json``.
+To help with security, the cloud account information can be referenced by the builder section. This example is the same as the previous example but with the account information in another file. Create a YAML file ``susecloud-account.yml``.
+
+.. code-block:: yaml
+
+	---
+	accounts:
+	- type: Suse Cloud
+	  name: My SuseCloud Account
+	  endpoint: http://ow2-04.xsalto.net:9292/v1
+	  keystoneEndpoint: http://ow2-04.xsalto.net:5000/v2.0
+	  username: test
+	  password: password
+
+If you are using JSON, create a JSON file ``susecloud-account.json``:
 
 .. code-block:: json
 
@@ -130,6 +174,21 @@ The builder section can either reference by using ``file`` or ``name``.
 
 Reference by file:
 
+If you are using YAML:
+
+.. code-block:: yaml
+
+	---
+	builders:
+	- type: Suse Cloud
+	  account:
+	    file: "/home/joris/accounts/susecloud-account.yml"
+	  tenant: opencloudware
+	  imageName: joris-test
+	  description: CentOS Core template.
+
+If you are using JSON:
+
 .. code-block:: json
 
 	{
@@ -147,6 +206,21 @@ Reference by file:
 	}
 
 Reference by name, note the cloud account must already be created by using ``account create``.
+
+If you are using YAML:
+
+.. code-block:: yaml
+
+	---
+	builders:
+	- type: Suse Cloud
+	  account:
+	    name: My SuseCloud Account
+	  tenant: opencloudware
+	  imageName: joris-test
+	  description: CentOS Core template.
+
+If you are using JSON:
 
 .. code-block:: json
 
